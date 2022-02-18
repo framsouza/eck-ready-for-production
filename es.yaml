@@ -2,8 +2,43 @@ apiVersion: elasticsearch.k8s.elastic.co/v1
 kind: Elasticsearch
 metadata:
   name: elastic-prd
+  annotations:
+    elasticsearch.alpha.elastic.co/autoscaling-spec: |
+      {
+          "policies": [{
+              "name": "hot",
+              "roles": ["data_hot", "data_content"],
+              "deciders": {
+                "proactive_storage": {
+                    "forecast_window": "5m"
+                }
+              },
+              "resources": {
+                  "nodeCount": { "min": 3, "max": 6 },
+                  "cpu": { "min": 1, "max": 8 },
+                  "memory": { "min": "2Gi", "max": "16Gi" },
+                  "storage": { "min": "64Gi", "max": "512Gi" }
+              }
+          },
+          {
+              "name": "scaling up ml nodes",
+              "roles": ["ml"],
+              "deciders": {
+                  "ml": {
+                      "down_scale_delay": "10m"
+                  }
+              },
+              "resources": {
+                  "nodeCount": { "min": 1, "max": 9 },
+                  "cpu": { "min": 1, "max": 4 },
+                  "memory": { "min": "2Gi", "max": "8Gi" }
+              }
+          }]
+      }
 spec:
   version: 8.0.0
+  secureSettings:
+  - secretName: gcs-credentials
   monitoring:
     metrics:
       elasticsearchRefs:
@@ -482,6 +517,63 @@ spec:
           - |
             bin/elasticsearch-plugin install --batch repository-gcs
           name: install-plugins
+  - name: ml-zone-b
+    count: 1
+    config:
+      node.attr.zone: europe-west1-b
+      node.roles: ml
+      node.store.allow_mmap: false
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 100Gi
+        storageClassName: sc-hot
+    podTemplate:
+      spec:
+        nodeSelector:
+          type: hot
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: failure-domain.beta.kubernetes.io/zone
+                  operator: In
+                  values:
+                  - "europe-west1-b"
+        containers:
+        - name: elasticsearch
+          env:
+          - name: READINESS_PROBE_TIMEOUT
+            value: "10"
+          resources:
+            requests:
+              memory: 4Gi
+            limits:
+              memory: 4Gi
+          readinessProbe:
+            exec:
+              command:
+              - bash
+              - -c
+              - /mnt/elastic-internal/scripts/readiness-probe-script.sh
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 12
+            successThreshold: 1
+            timeoutSeconds: 12
+        initContainers:
+        - command:
+          - sh
+          - -c
+          - |
+            bin/elasticsearch-plugin install --batch repository-gcs
+          name: install-plugins
   - name: master-zone-b
     count: 1
     config:
@@ -662,3 +754,4 @@ spec:
     changeBudget:
       maxSurge: 1
       maxUnavailable: 1
+
