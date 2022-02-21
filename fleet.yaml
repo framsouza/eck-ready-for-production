@@ -1,13 +1,65 @@
+apiVersion: kibana.k8s.elastic.co/v1
+kind: Kibana
+metadata:
+  name: kibana-prd
+spec:
+  version: 8.0.0
+  count: 1
+  elasticsearchRef:
+    name: elastic-prd
+  config:
+    xpack.fleet.agents.elasticsearch.hosts: ["https://elastic-prd-es-http.default.svc:9200"]
+    xpack.fleet.agents.fleet_server.hosts: ["https://fleet-server-agent-http.default.svc:8220"]
+    xpack.fleet.packages:
+    - name: system
+      version: latest
+    - name: elastic_agent
+      version: latest
+    - name: fleet_server
+      version: latest
+    - name: kubernetes
+      # pinning this version as the next one introduced a kube-proxy host setting default that breaks this recipe,
+      # see https://github.com/elastic/integrations/pull/1565 for more details
+      version: 0.14.0
+    xpack.fleet.agentPolicies:
+    - name: Fleet Server on ECK policy
+      id: eck-fleet-server
+      namespace: default
+      monitoring_enabled:
+      - logs
+      - metrics
+      is_default_fleet_server: true
+      package_policies:
+      - name: fleet_server-1
+        id: fleet_server-1
+        package:
+          name: fleet_server
+    - name: Elastic Agent on ECK policy
+      id: eck-agent
+      namespace: default
+      monitoring_enabled:
+      - logs
+      - metrics
+      unenroll_timeout: 900
+      is_default: true
+      package_policies:
+      - package:
+          name: system
+        name: system-1
+      - package:
+          name: kubernetes
+        name: kubernetes-1
+---
 apiVersion: agent.k8s.elastic.co/v1alpha1
 kind: Agent
 metadata:
   name: fleet-server
 spec:
   version: 8.0.0
-  elasticsearchRefs:
-  - name: elastic-prd
   kibanaRef:
     name: kibana-prd
+  elasticsearchRefs:
+  - name: elastic-prd
   mode: fleet
   fleetServerEnabled: true
   deployment:
@@ -18,11 +70,6 @@ spec:
         automountServiceAccountToken: true
         securityContext:
           runAsUser: 0
-        containers:
-        - env:
-          - name: KIBANA_FLEET_HOST
-            value: https://kibana-prd-kb-http.default.svc:5601
-          name: agent
 ---
 apiVersion: agent.k8s.elastic.co/v1alpha1
 kind: Agent
@@ -53,6 +100,7 @@ rules:
 - apiGroups: [""]
   resources:
   - pods
+  - namespaces
   - nodes
   verbs:
   - get
