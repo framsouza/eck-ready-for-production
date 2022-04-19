@@ -1,13 +1,13 @@
 apiVersion: elasticsearch.k8s.elastic.co/v1
 kind: Elasticsearch
 metadata:
-  name: elastic-prd
+  name: elasticsearch
   annotations:
     elasticsearch.alpha.elastic.co/autoscaling-spec: |
       {
           "policies": [{
               "name": "hot",
-              "roles": ["data_hot", "data_content"],
+              "roles": ["data_hot", "data_content", "ingest"],
               "deciders": {
                 "proactive_storage": {
                     "forecast_window": "5m"
@@ -21,7 +21,7 @@ metadata:
               }
           },
           {
-              "name": "scaling up ml nodes",
+              "name": "ml",
               "roles": ["ml"],
               "deciders": {
                   "ml": {
@@ -37,8 +37,6 @@ metadata:
       }
 spec:
   version: 8.0.0
-  secureSettings:
-  - secretName: gcs-credentials
   monitoring:
     metrics:
       elasticsearchRefs:
@@ -48,20 +46,23 @@ spec:
       elasticsearchRefs:
         - name: monitoring
           namespace: monitoring
-  http:
-    service:
-      metadata:
-        annotations:
-          elasticsearch.k8s.elastic.co/node-master: "false"
-      spec:
-        type: LoadBalancer
   nodeSets:
   - name: hot-zone-b
     count: 1
     config:
       node.attr.zone: europe-west1-b	
-      node.roles: [ data_hot, data_content ]
+      node.roles: [ data_hot, data_content, ingest ]
       node.store.allow_mmap: false
+      xpack.security.authc.realms:
+        saml:
+          saml1:
+            attributes.principal: nameid
+            idp.entity_id: urn:framsouza.eu.auth0.com
+            idp.metadata.path: https://framsouza.eu.auth0.com/samlp/metadata/nbNudmA4FTPI3kO6im0o5KPV3gugxxQI
+            order: 2
+            sp.acs: https://kibana.framsouza.co/api/security/v1/saml
+            sp.entity_id: https://framsouza.co
+            sp.logout: https://kibana.framsouza.co/logout
     volumeClaimTemplates:
     - metadata:
         name: elasticsearch-data
@@ -106,19 +107,22 @@ spec:
             periodSeconds: 12
             successThreshold: 1
             timeoutSeconds: 12
-        initContainers:
-        - command:
-          - sh
-          - -c
-          - |
-            bin/elasticsearch-plugin install --batch repository-gcs
-          name: install-plugins
   - name: hot-zone-c
     count: 1
     config:
       node.attr.zone: europe-west1-c
-      node.roles: [ data_hot, data_content ]
+      node.roles: [ data_hot, data_content, ingest ]
       node.store.allow_mmap: false
+      xpack.security.authc.realms:
+        saml:
+          saml1:
+            attributes.principal: nameid
+            idp.entity_id: urn:framsouza.eu.auth0.com
+            idp.metadata.path: https://framsouza.eu.auth0.com/samlp/metadata/nbNudmA4FTPI3kO6im0o5KPV3gugxxQI
+            order: 2
+            sp.acs: https://kibana.framsouza.co/api/security/v1/saml
+            sp.entity_id: https://framsouza.co
+            sp.logout: https://kibana.framsouza.co/logout
     volumeClaimTemplates:
     - metadata:
         name: elasticsearch-data
@@ -164,19 +168,22 @@ spec:
             periodSeconds: 12
             successThreshold: 1
             timeoutSeconds: 12
-        initContainers:
-        - command:
-          - sh
-          - -c
-          - |
-            bin/elasticsearch-plugin install --batch repository-gcs
-          name: install-plugins
   - name: hot-zone-d
     count: 1
     config:
       node.attr.zone: europe-west1-d
       node.store.allow_mmap: false
-      node.roles: [ data_hot, data_content ]
+      node.roles: [ data_hot, data_content, ingest ]
+      xpack.security.authc.realms:
+        saml:
+          saml1:
+            attributes.principal: nameid
+            idp.entity_id: urn:framsouza.eu.auth0.com
+            idp.metadata.path: https://framsouza.eu.auth0.com/samlp/metadata/nbNudmA4FTPI3kO6im0o5KPV3gugxxQI
+            order: 2
+            sp.acs: https://kibana.framsouza.co/api/security/v1/saml
+            sp.entity_id: https://framsouza.co
+            sp.logout: https://kibana.framsouza.co/logout
     volumeClaimTemplates:
     - metadata:
         name: elasticsearch-data
@@ -222,19 +229,22 @@ spec:
             periodSeconds: 12
             successThreshold: 1
             timeoutSeconds: 12
-        initContainers:
-        - command:
-          - sh
-          - -c
-          - |
-            bin/elasticsearch-plugin install --batch repository-gcs
-          name: install-plugins
   - name: warm-zone-b
     count: 1
     config:
       node.attr.zone: europe-west1-b
       node.roles: data_warm
       node.store.allow_mmap: false
+      xpack.security.authc.realms:
+        saml:
+          saml1:
+            attributes.principal: nameid
+            idp.entity_id: urn:framsouza.eu.auth0.com
+            idp.metadata.path: https://framsouza.eu.auth0.com/samlp/metadata/nbNudmA4FTPI3kO6im0o5KPV3gugxxQI
+            order: 2
+            sp.acs: https://kibana.framsouza.co/api/security/v1/saml
+            sp.entity_id: https://framsouza.co
+            sp.logout: https://kibana.framsouza.co/logout
     volumeClaimTemplates:
     - metadata:
         name: elasticsearch-data
@@ -280,19 +290,22 @@ spec:
             periodSeconds: 12
             successThreshold: 1
             timeoutSeconds: 12
-        initContainers:
-        - command:
-          - sh
-          - -c
-          - |
-            bin/elasticsearch-plugin install --batch repository-gcs
-          name: install-plugins
   - name: warm-zone-c
     count: 1
     config:
       node.attr.zone: europe-west1-c
       node.store.allow_mmap: false
       node.roles: data_warm
+      xpack.security.authc.realms:
+        saml:
+          saml1:
+            attributes.principal: nameid
+            idp.entity_id: urn:framsouza.eu.auth0.com
+            idp.metadata.path: https://framsouza.eu.auth0.com/samlp/metadata/nbNudmA4FTPI3kO6im0o5KPV3gugxxQI
+            order: 2
+            sp.acs: https://kibana.framsouza.co/api/security/v1/saml
+            sp.entity_id: https://framsouza.co
+            sp.logout: https://kibana.framsouza.co/logout
     volumeClaimTemplates:
     - metadata:
         name: elasticsearch-data
@@ -338,19 +351,22 @@ spec:
             periodSeconds: 12
             successThreshold: 1
             timeoutSeconds: 12
-        initContainers:
-        - command:
-          - sh
-          - -c
-          - |
-            bin/elasticsearch-plugin install --batch repository-gcs
-          name: install-plugins
   - name: warm-zone-d
     count: 1
     config:
       node.attr.zone: europe-west1-d
       node.store.allow_mmap: false
       node.roles: data_warm
+      xpack.security.authc.realms:
+        saml:
+          saml1:
+            attributes.principal: nameid
+            idp.entity_id: urn:framsouza.eu.auth0.com
+            idp.metadata.path: https://framsouza.eu.auth0.com/samlp/metadata/nbNudmA4FTPI3kO6im0o5KPV3gugxxQI
+            order: 2
+            sp.acs: https://kibana.framsouza.co/api/security/v1/saml
+            sp.entity_id: https://framsouza.co
+            sp.logout: https://kibana.framsouza.co/logout
     volumeClaimTemplates:
     - metadata:
         name: elasticsearch-data
@@ -396,19 +412,22 @@ spec:
             periodSeconds: 12
             successThreshold: 1
             timeoutSeconds: 12
-        initContainers:
-        - command:
-          - sh
-          - -c
-          - |
-            bin/elasticsearch-plugin install --batch repository-gcs
-          name: install-plugins
   - name: cold-zone-b
     count: 1
     config:
       node.attr.zone: europe-west1-b
       node.store.allow_mmap: false
       node.roles: data_cold
+      xpack.security.authc.realms:
+        saml:
+          saml1:
+            attributes.principal: nameid
+            idp.entity_id: urn:framsouza.eu.auth0.com
+            idp.metadata.path: https://framsouza.eu.auth0.com/samlp/metadata/nbNudmA4FTPI3kO6im0o5KPV3gugxxQI
+            order: 2
+            sp.acs: https://kibana.framsouza.co/api/security/v1/saml
+            sp.entity_id: https://framsouza.co
+            sp.logout: https://kibana.framsouza.co/logout
     volumeClaimTemplates:
     - metadata:
         name: elasticsearch-data
@@ -453,19 +472,22 @@ spec:
             periodSeconds: 12
             successThreshold: 1
             timeoutSeconds: 12
-        initContainers:
-        - command:
-          - sh
-          - -c
-          - |
-            bin/elasticsearch-plugin install --batch repository-gcs
-          name: install-plugins
   - name: frozen-zone-b
     count: 1
     config:
       node.attr.zone: europe-west1-b
       node.store.allow_mmap: false
       node.roles: data_frozen
+      xpack.security.authc.realms:
+        saml:
+          saml1:
+            attributes.principal: nameid
+            idp.entity_id: urn:framsouza.eu.auth0.com
+            idp.metadata.path: https://framsouza.eu.auth0.com/samlp/metadata/nbNudmA4FTPI3kO6im0o5KPV3gugxxQI
+            order: 2
+            sp.acs: https://kibana.framsouza.co/api/security/v1/saml
+            sp.entity_id: https://framsouza.co
+            sp.logout: https://kibana.framsouza.co/logout
     volumeClaimTemplates:
     - metadata:
         name: elasticsearch-data
@@ -510,19 +532,22 @@ spec:
             periodSeconds: 12
             successThreshold: 1
             timeoutSeconds: 12
-        initContainers:
-        - command:
-          - sh
-          - -c
-          - |
-            bin/elasticsearch-plugin install --batch repository-gcs
-          name: install-plugins
   - name: ml-zone-b
     count: 1
     config:
       node.attr.zone: europe-west1-b
       node.roles: ml
       node.store.allow_mmap: false
+      xpack.security.authc.realms:
+        saml:
+          saml1:
+            attributes.principal: nameid
+            idp.entity_id: urn:framsouza.eu.auth0.com
+            idp.metadata.path: https://framsouza.eu.auth0.com/samlp/metadata/nbNudmA4FTPI3kO6im0o5KPV3gugxxQI
+            order: 2
+            sp.acs: https://kibana.framsouza.co/api/security/v1/saml
+            sp.entity_id: https://framsouza.co
+            sp.logout: https://kibana.framsouza.co/logout
     volumeClaimTemplates:
     - metadata:
         name: elasticsearch-data
@@ -567,19 +592,22 @@ spec:
             periodSeconds: 12
             successThreshold: 1
             timeoutSeconds: 12
-        initContainers:
-        - command:
-          - sh
-          - -c
-          - |
-            bin/elasticsearch-plugin install --batch repository-gcs
-          name: install-plugins
   - name: master-zone-b
     count: 1
     config:
       node.attr.zone: europe-west1-b
       node.store.allow_mmap: false
       node.roles: master
+      xpack.security.authc.realms:
+        saml:
+          saml1:
+            attributes.principal: nameid
+            idp.entity_id: urn:framsouza.eu.auth0.com
+            idp.metadata.path: https://framsouza.eu.auth0.com/samlp/metadata/nbNudmA4FTPI3kO6im0o5KPV3gugxxQI
+            order: 2
+            sp.acs: https://kibana.framsouza.co/api/security/v1/saml
+            sp.entity_id: https://framsouza.co
+            sp.logout: https://kibana.framsouza.co/logout
     volumeClaimTemplates:
     - metadata:
         name: elasticsearch-data
@@ -625,19 +653,22 @@ spec:
             periodSeconds: 12
             successThreshold: 1
             timeoutSeconds: 12
-        initContainers:
-        - command:
-          - sh
-          - -c
-          - |
-            bin/elasticsearch-plugin install --batch repository-gcs
-          name: install-plugins
   - name: master-zone-c
     count: 1
     config:
       node.attr.zone: europe-west1-c
       node.roles: master
       node.store.allow_mmap: false
+      xpack.security.authc.realms:
+        saml:
+          saml1:
+            attributes.principal: nameid
+            idp.entity_id: urn:framsouza.eu.auth0.com
+            idp.metadata.path: https://framsouza.eu.auth0.com/samlp/metadata/nbNudmA4FTPI3kO6im0o5KPV3gugxxQI
+            order: 2
+            sp.acs: https://kibana.framsouza.co/api/security/v1/saml
+            sp.entity_id: https://framsouza.co
+            sp.logout: https://kibana.framsouza.co/logout
     volumeClaimTemplates:
     - metadata:
         name: elasticsearch-data
@@ -684,19 +715,22 @@ spec:
             periodSeconds: 12
             successThreshold: 1
             timeoutSeconds: 12
-        initContainers:
-        - command:
-          - sh
-          - -c
-          - |
-            bin/elasticsearch-plugin install --batch repository-gcs
-          name: install-plugins
   - name: master-zone-d
     count: 1
     config:
       node.attr.zone: europe-west1-d
       node.store.allow_mmap: false
       node.roles: master
+      xpack.security.authc.realms:
+        saml:
+          saml1:
+            attributes.principal: nameid
+            idp.entity_id: urn:framsouza.eu.auth0.com
+            idp.metadata.path: https://framsouza.eu.auth0.com/samlp/metadata/nbNudmA4FTPI3kO6im0o5KPV3gugxxQI
+            order: 2
+            sp.acs: https://kibana.framsouza.co/api/security/v1/saml
+            sp.entity_id: https://framsouza.co
+            sp.logout: https://kibana.framsouza.co/logout
     volumeClaimTemplates:
     - metadata:
         name: elasticsearch-data
@@ -743,13 +777,6 @@ spec:
             periodSeconds: 12
             successThreshold: 1
             timeoutSeconds: 12
-        initContainers:
-        - command:
-          - sh
-          - -c
-          - |
-            bin/elasticsearch-plugin install --batch repository-gcs
-          name: install-plugins
   updateStrategy:
     changeBudget:
       maxSurge: 1

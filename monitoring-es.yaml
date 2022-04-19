@@ -1,3 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
 ---
 apiVersion: elasticsearch.k8s.elastic.co/v1
 kind: Elasticsearch
@@ -11,6 +15,26 @@ spec:
     count: 1
     config:
       node.store.allow_mmap: false
+      xpack.security.authc.realms:
+        saml:
+          saml1:
+            attributes.principal: nameid
+            idp.entity_id: urn:framsouza.eu.auth0.com
+            idp.metadata.path: https://framsouza.eu.auth0.com/samlp/metadata/nbNudmA4FTPI3kO6im0o5KPV3gugxxQI
+            order: 2
+            sp.acs: https://monitoring.framsouza.co/api/security/v1/saml
+            sp.entity_id: https://framsouza.co
+            sp.logout: https://monitoring.framsouza.co/logout
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 100Gi
+        storageClassName: standard
 ---
 apiVersion: kibana.k8s.elastic.co/v1
 kind: Kibana
@@ -22,3 +46,10 @@ spec:
   count: 1
   elasticsearchRef:
     name: monitoring
+  config:
+    xpack.security.authc.providers:
+      saml.saml1:
+        order: 0
+        realm: "saml1"
+      basic.basic1:
+        order: 1
