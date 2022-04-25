@@ -1,0 +1,805 @@
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: elasticsearch
+  annotations:
+    elasticsearch.alpha.elastic.co/autoscaling-spec: |
+      {
+          "policies": [{
+              "name": "hot",
+              "roles": ["data_hot", "data_content", "ingest"],
+              "deciders": {
+                "proactive_storage": {
+                    "forecast_window": "5m"
+                }
+              },
+              "resources": {
+                  "nodeCount": { "min": 3, "max": 6 },
+                  "cpu": { "min": 1, "max": 8 },
+                  "memory": { "min": "2Gi", "max": "16Gi" },
+                  "storage": { "min": "64Gi", "max": "512Gi" }
+              }
+          },
+          {
+              "name": "ml",
+              "roles": ["ml"],
+              "deciders": {
+                  "ml": {
+                      "down_scale_delay": "10m"
+                  }
+              },
+              "resources": {
+                  "nodeCount": { "min": 1, "max": 9 },
+                  "cpu": { "min": 1, "max": 4 },
+                  "memory": { "min": "2Gi", "max": "8Gi" }
+              }
+          }]
+      }
+spec:
+  version: 8.1.3
+  auth:
+    roles:
+    - secretName: saml-role
+    fileRealm:
+    - secretName: role-mapping
+  monitoring:
+    metrics:
+      elasticsearchRefs:
+        - name: monitoring
+          namespace: monitoring
+    logs:
+      elasticsearchRefs:
+        - name: monitoring
+          namespace: monitoring
+  http:
+    service:
+      spec:
+        selector:
+          elasticsearch.k8s.elastic.co/cluster-name: elasticsearch
+          elasticsearch.k8s.elastic.co/node-data: "false"
+          elasticsearch.k8s.elastic.co/node-data_content: "true"
+          elasticsearch.k8s.elastic.co/node-data_frozen: "false"
+          elasticsearch.k8s.elastic.co/node-data_hot: "true"
+          elasticsearch.k8s.elastic.co/node-data_warm: "false"
+          elasticsearch.k8s.elastic.co/node-ingest: "true"
+          elasticsearch.k8s.elastic.co/node-master: "false"
+          elasticsearch.k8s.elastic.co/node-ml: "false"
+          elasticsearch.k8s.elastic.co/node-remote_cluster_client: "false"
+          elasticsearch.k8s.elastic.co/node-transform: "false"
+          elasticsearch.k8s.elastic.co/node-voting_only: "false"
+  nodeSets:
+  - name: hot-zone-b
+    count: 1
+    config:
+      node.attr.zone: europe-west1-b	
+      node.roles: [ data_hot, data_content, ingest ]
+      node.store.allow_mmap: false
+      xpack.security.authc.realms:
+        saml:
+          saml1:
+            attributes.principal: nameid
+            idp.entity_id: urn:framsouza.eu.auth0.com
+            idp.metadata.path: https://framsouza.eu.auth0.com/samlp/metadata/nbNudmA4FTPI3kO6im0o5KPV3gugxxQI
+            order: 2
+            sp.acs: https://kibana.framsouza.co/api/security/v1/saml
+            sp.entity_id: https://framsouza.co
+            sp.logout: https://kibana.framsouza.co/logout
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 100Gi
+        storageClassName: sc-hot
+    podTemplate:
+      spec:
+        nodeSelector:
+          type: hot
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: failure-domain.beta.kubernetes.io/zone
+                  operator: In
+                  values:
+                  - "europe-west1-b"
+        containers:
+        - name: elasticsearch
+          env:
+          - name: READINESS_PROBE_TIMEOUT
+            value: "10"
+          resources:
+            requests:
+              memory: 4Gi
+            limits:
+              memory: 4Gi
+          readinessProbe:
+            exec:
+              command:
+              - bash
+              - -c
+              - /mnt/elastic-internal/scripts/readiness-probe-script.sh
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 12
+            successThreshold: 1
+            timeoutSeconds: 12
+  - name: hot-zone-c
+    count: 1
+    config:
+      node.attr.zone: europe-west1-c
+      node.roles: [ data_hot, data_content, ingest ]
+      node.store.allow_mmap: false
+      xpack.security.authc.realms:
+        saml:
+          saml1:
+            attributes.principal: nameid
+            idp.entity_id: urn:framsouza.eu.auth0.com
+            idp.metadata.path: https://framsouza.eu.auth0.com/samlp/metadata/nbNudmA4FTPI3kO6im0o5KPV3gugxxQI
+            order: 2
+            sp.acs: https://kibana.framsouza.co/api/security/v1/saml
+            sp.entity_id: https://framsouza.co
+            sp.logout: https://kibana.framsouza.co/logout
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 50Gi
+        storageClassName: sc-hot
+    podTemplate:
+      spec:
+        nodeSelector:
+          type: hot
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: failure-domain.beta.kubernetes.io/zone
+                  operator: In
+                  values:
+                  - europe-west1-c
+        containers:
+        - name: elasticsearch
+          env:
+          - name: READINESS_PROBE_TIMEOUT
+            value: "10"
+          resources:
+            requests:
+              memory: 4Gi
+              cpu: 1
+            limits:
+              memory: 4Gi
+          readinessProbe:
+            exec:
+              command:
+              - bash
+              - -c
+              - /mnt/elastic-internal/scripts/readiness-probe-script.sh
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 12
+            successThreshold: 1
+            timeoutSeconds: 12
+  - name: hot-zone-d
+    count: 1
+    config:
+      node.attr.zone: europe-west1-d
+      node.store.allow_mmap: false
+      node.roles: [ data_hot, data_content, ingest ]
+      xpack.security.authc.realms:
+        saml:
+          saml1:
+            attributes.principal: nameid
+            idp.entity_id: urn:framsouza.eu.auth0.com
+            idp.metadata.path: https://framsouza.eu.auth0.com/samlp/metadata/nbNudmA4FTPI3kO6im0o5KPV3gugxxQI
+            order: 2
+            sp.acs: https://kibana.framsouza.co/api/security/v1/saml
+            sp.entity_id: https://framsouza.co
+            sp.logout: https://kibana.framsouza.co/logout
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 50Gi
+        storageClassName: sc-hot
+    podTemplate:
+      spec:
+        nodeSelector:
+          type: hot
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: failure-domain.beta.kubernetes.io/zone
+                  operator: In
+                  values:
+                  - europe-west1-d
+        containers:
+        - name: elasticsearch
+          env:
+          - name: READINESS_PROBE_TIMEOUT
+            value: "10"
+          resources:
+            requests:
+              memory: 4Gi
+              cpu: 1
+            limits:
+              memory: 4Gi
+          readinessProbe:
+            exec:
+              command:
+              - bash
+              - -c
+              - /mnt/elastic-internal/scripts/readiness-probe-script.sh
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 12
+            successThreshold: 1
+            timeoutSeconds: 12
+  - name: warm-zone-b
+    count: 1
+    config:
+      node.attr.zone: europe-west1-b
+      node.roles: data_warm
+      node.store.allow_mmap: false
+      xpack.security.authc.realms:
+        saml:
+          saml1:
+            attributes.principal: nameid
+            idp.entity_id: urn:framsouza.eu.auth0.com
+            idp.metadata.path: https://framsouza.eu.auth0.com/samlp/metadata/nbNudmA4FTPI3kO6im0o5KPV3gugxxQI
+            order: 2
+            sp.acs: https://kibana.framsouza.co/api/security/v1/saml
+            sp.entity_id: https://framsouza.co
+            sp.logout: https://kibana.framsouza.co/logout
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 50Gi
+        storageClassName: sc-warm-cold
+    podTemplate:
+      spec:
+        nodeSelector:
+          type: warm
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: failure-domain.beta.kubernetes.io/zone
+                  operator: In
+                  values:
+                  - europe-west1-b
+        containers:
+        - name: elasticsearch
+          env:
+          - name: READINESS_PROBE_TIMEOUT
+            value: "10"
+          resources:
+            requests:
+              memory: 2Gi
+              cpu: 1
+            limits:
+              memory: 2Gi
+          readinessProbe:
+            exec:
+              command:
+              - bash
+              - -c
+              - /mnt/elastic-internal/scripts/readiness-probe-script.sh
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 12
+            successThreshold: 1
+            timeoutSeconds: 12
+  - name: warm-zone-c
+    count: 1
+    config:
+      node.attr.zone: europe-west1-c
+      node.store.allow_mmap: false
+      node.roles: data_warm
+      xpack.security.authc.realms:
+        saml:
+          saml1:
+            attributes.principal: nameid
+            idp.entity_id: urn:framsouza.eu.auth0.com
+            idp.metadata.path: https://framsouza.eu.auth0.com/samlp/metadata/nbNudmA4FTPI3kO6im0o5KPV3gugxxQI
+            order: 2
+            sp.acs: https://kibana.framsouza.co/api/security/v1/saml
+            sp.entity_id: https://framsouza.co
+            sp.logout: https://kibana.framsouza.co/logout
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 50Gi
+        storageClassName: sc-warm-cold
+    podTemplate:
+      spec:
+        nodeSelector:
+          type: warm
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: failure-domain.beta.kubernetes.io/zone
+                  operator: In
+                  values:
+                  - europe-west1-c
+        containers:
+        - name: elasticsearch
+          env:
+          - name: READINESS_PROBE_TIMEOUT
+            value: "10"
+          resources:
+            requests:
+              memory: 2Gi
+              cpu: 1
+            limits:
+              memory: 2Gi
+          readinessProbe:
+            exec:
+              command:
+              - bash
+              - -c
+              - /mnt/elastic-internal/scripts/readiness-probe-script.sh
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 12
+            successThreshold: 1
+            timeoutSeconds: 12
+  - name: warm-zone-d
+    count: 1
+    config:
+      node.attr.zone: europe-west1-d
+      node.store.allow_mmap: false
+      node.roles: data_warm
+      xpack.security.authc.realms:
+        saml:
+          saml1:
+            attributes.principal: nameid
+            idp.entity_id: urn:framsouza.eu.auth0.com
+            idp.metadata.path: https://framsouza.eu.auth0.com/samlp/metadata/nbNudmA4FTPI3kO6im0o5KPV3gugxxQI
+            order: 2
+            sp.acs: https://kibana.framsouza.co/api/security/v1/saml
+            sp.entity_id: https://framsouza.co
+            sp.logout: https://kibana.framsouza.co/logout
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 50Gi
+        storageClassName: sc-warm-cold
+    podTemplate:
+      spec:
+        nodeSelector:
+          type: warm
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: failure-domain.beta.kubernetes.io/zone
+                  operator: In
+                  values:
+                  - europe-west1-d
+        containers:
+        - name: elasticsearch
+          env:
+          - name: READINESS_PROBE_TIMEOUT
+            value: "10"
+          resources:
+            requests:
+              memory: 2Gi
+              cpu: 1
+            limits:
+              memory: 2Gi
+          readinessProbe:
+            exec:
+              command:
+              - bash
+              - -c
+              - /mnt/elastic-internal/scripts/readiness-probe-script.sh
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 12
+            successThreshold: 1
+            timeoutSeconds: 12
+  - name: cold-zone-b
+    count: 1
+    config:
+      node.attr.zone: europe-west1-b
+      node.store.allow_mmap: false
+      node.roles: data_cold
+      xpack.security.authc.realms:
+        saml:
+          saml1:
+            attributes.principal: nameid
+            idp.entity_id: urn:framsouza.eu.auth0.com
+            idp.metadata.path: https://framsouza.eu.auth0.com/samlp/metadata/nbNudmA4FTPI3kO6im0o5KPV3gugxxQI
+            order: 2
+            sp.acs: https://kibana.framsouza.co/api/security/v1/saml
+            sp.entity_id: https://framsouza.co
+            sp.logout: https://kibana.framsouza.co/logout
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 100Gi
+        storageClassName: sc-warm-cold
+    podTemplate:
+      spec:
+        nodeSelector:
+          type: cold
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: failure-domain.beta.kubernetes.io/zone
+                  operator: In
+                  values:
+                  - europe-west1-b
+        containers:
+        - name: elasticsearch
+          env:
+          - name: READINESS_PROBE_TIMEOUT
+            value: "10"
+          resources:
+            requests:
+              memory: 2Gi
+            limits:
+              memory: 2Gi
+          readinessProbe:
+            exec:
+              command:
+              - bash
+              - -c
+              - /mnt/elastic-internal/scripts/readiness-probe-script.sh
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 12
+            successThreshold: 1
+            timeoutSeconds: 12
+  - name: frozen-zone-b
+    count: 1
+    config:
+      node.attr.zone: europe-west1-b
+      node.store.allow_mmap: false
+      node.roles: data_frozen
+      xpack.security.authc.realms:
+        saml:
+          saml1:
+            attributes.principal: nameid
+            idp.entity_id: urn:framsouza.eu.auth0.com
+            idp.metadata.path: https://framsouza.eu.auth0.com/samlp/metadata/nbNudmA4FTPI3kO6im0o5KPV3gugxxQI
+            order: 2
+            sp.acs: https://kibana.framsouza.co/api/security/v1/saml
+            sp.entity_id: https://framsouza.co
+            sp.logout: https://kibana.framsouza.co/logout
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 100Gi
+        storageClassName: sc-warm-cold
+    podTemplate:
+      spec:
+        nodeSelector:
+          type: frozen
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: failure-domain.beta.kubernetes.io/zone
+                  operator: In
+                  values:
+                  - europe-west1-b
+        containers:
+        - name: elasticsearch
+          env:
+          - name: READINESS_PROBE_TIMEOUT
+            value: "10"
+          resources:
+            requests:
+              memory: 2Gi
+            limits:
+              memory: 2Gi
+          readinessProbe:
+            exec:
+              command:
+              - bash
+              - -c
+              - /mnt/elastic-internal/scripts/readiness-probe-script.sh
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 12
+            successThreshold: 1
+            timeoutSeconds: 12
+  - name: ml-zone-b
+    count: 1
+    config:
+      node.attr.zone: europe-west1-b
+      node.roles: ml
+      node.store.allow_mmap: false
+      xpack.security.authc.realms:
+        saml:
+          saml1:
+            attributes.principal: nameid
+            idp.entity_id: urn:framsouza.eu.auth0.com
+            idp.metadata.path: https://framsouza.eu.auth0.com/samlp/metadata/nbNudmA4FTPI3kO6im0o5KPV3gugxxQI
+            order: 2
+            sp.acs: https://kibana.framsouza.co/api/security/v1/saml
+            sp.entity_id: https://framsouza.co
+            sp.logout: https://kibana.framsouza.co/logout
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 100Gi
+        storageClassName: sc-hot
+    podTemplate:
+      spec:
+        nodeSelector:
+          type: hot
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: failure-domain.beta.kubernetes.io/zone
+                  operator: In
+                  values:
+                  - "europe-west1-b"
+        containers:
+        - name: elasticsearch
+          env:
+          - name: READINESS_PROBE_TIMEOUT
+            value: "10"
+          resources:
+            requests:
+              memory: 4Gi
+            limits:
+              memory: 4Gi
+          readinessProbe:
+            exec:
+              command:
+              - bash
+              - -c
+              - /mnt/elastic-internal/scripts/readiness-probe-script.sh
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 12
+            successThreshold: 1
+            timeoutSeconds: 12
+  - name: master-zone-b
+    count: 1
+    config:
+      node.attr.zone: europe-west1-b
+      node.store.allow_mmap: false
+      node.roles: master
+      xpack.security.authc.realms:
+        saml:
+          saml1:
+            attributes.principal: nameid
+            idp.entity_id: urn:framsouza.eu.auth0.com
+            idp.metadata.path: https://framsouza.eu.auth0.com/samlp/metadata/nbNudmA4FTPI3kO6im0o5KPV3gugxxQI
+            order: 2
+            sp.acs: https://kibana.framsouza.co/api/security/v1/saml
+            sp.entity_id: https://framsouza.co
+            sp.logout: https://kibana.framsouza.co/logout
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+        storageClassName: sc-hot
+    podTemplate:
+      spec:
+        nodeSelector:
+          type: hot
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: failure-domain.beta.kubernetes.io/zone
+                  operator: In
+                  values:
+                  - europe-west1-b
+        containers:
+        - name: elasticsearch
+          env:
+          - name: READINESS_PROBE_TIMEOUT
+            value: "10"
+          resources:
+            requests:
+              memory: 2Gi
+              cpu: 1
+            limits:
+              memory: 2Gi
+          readinessProbe:
+            exec:
+              command:
+              - bash
+              - -c
+              - /mnt/elastic-internal/scripts/readiness-probe-script.sh
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 12
+            successThreshold: 1
+            timeoutSeconds: 12
+  - name: master-zone-c
+    count: 1
+    config:
+      node.attr.zone: europe-west1-c
+      node.roles: master
+      node.store.allow_mmap: false
+      xpack.security.authc.realms:
+        saml:
+          saml1:
+            attributes.principal: nameid
+            idp.entity_id: urn:framsouza.eu.auth0.com
+            idp.metadata.path: https://framsouza.eu.auth0.com/samlp/metadata/nbNudmA4FTPI3kO6im0o5KPV3gugxxQI
+            order: 2
+            sp.acs: https://kibana.framsouza.co/api/security/v1/saml
+            sp.entity_id: https://framsouza.co
+            sp.logout: https://kibana.framsouza.co/logout
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+        storageClassName: sc-hot
+    podTemplate:
+      spec:
+      spec:
+        nodeSelector:
+          type: hot
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: failure-domain.beta.kubernetes.io/zone
+                  operator: In
+                  values:
+                  - europe-west1-c
+        containers:
+        - name: elasticsearch
+          env:
+          - name: READINESS_PROBE_TIMEOUT
+            value: "10"
+          resources:
+            requests:
+              memory: 2Gi
+              cpu: 1
+            limits:
+              memory: 2Gi
+          readinessProbe:
+            exec:
+              command:
+              - bash
+              - -c
+              - /mnt/elastic-internal/scripts/readiness-probe-script.sh
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 12
+            successThreshold: 1
+            timeoutSeconds: 12
+  - name: master-zone-d
+    count: 1
+    config:
+      node.attr.zone: europe-west1-d
+      node.store.allow_mmap: false
+      node.roles: master
+      xpack.security.authc.realms:
+        saml:
+          saml1:
+            attributes.principal: nameid
+            idp.entity_id: urn:framsouza.eu.auth0.com
+            idp.metadata.path: https://framsouza.eu.auth0.com/samlp/metadata/nbNudmA4FTPI3kO6im0o5KPV3gugxxQI
+            order: 2
+            sp.acs: https://kibana.framsouza.co/api/security/v1/saml
+            sp.entity_id: https://framsouza.co
+            sp.logout: https://kibana.framsouza.co/logout
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+        storageClassName: sc-hot
+    podTemplate:
+      spec:
+      spec:
+        nodeSelector:
+          type: hot
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: failure-domain.beta.kubernetes.io/zone
+                  operator: In
+                  values:
+                  - europe-west1-d
+        containers:
+        - name: elasticsearch
+          env:
+          - name: READINESS_PROBE_TIMEOUT
+            value: "10"
+          resources:
+            requests:
+              memory: 2Gi
+              cpu: 1
+            limits:
+              memory: 2Gi
+          readinessProbe:
+            exec:
+              command:
+              - bash
+              - -c
+              - /mnt/elastic-internal/scripts/readiness-probe-script.sh
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 12
+            successThreshold: 1
+            timeoutSeconds: 12
+  updateStrategy:
+    changeBudget:
+      maxSurge: 1
+      maxUnavailable: 1
+

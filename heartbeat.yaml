@@ -12,9 +12,29 @@ spec:
     - type: tcp
       schedule: '@every 5s'
       hosts: ["elasticsearch-es-http.default.svc:9200"]
+      name: elasticsearch-tcp
+    - type: http
+      id: elasticsearch-cert
+      name: elasticsearch-cert
+      hosts: ["https://elasticsearch-es-http.default.svc:9200"]
+      schedule: '@every 5s'
+      ssl:
+        certificate_authorities: ['/mnt/elastic-internal/elasticsearch-certs/ca.crt']
+      schedule: '@every 5s'
+      username: elastic
+      password: ${ELASTIC_PASSWORD}
   deployment:
+    replicas: 1
     podTemplate:
       spec:
-        dnsPolicy: ClusterFirstWithHostNet
         securityContext:
           runAsUser: 0
+        containers:
+        - name: heartbeat
+          image: docker.elastic.co/beats/heartbeat:8.0.0
+          env:
+            - name: ELASTIC_PASSWORD
+              valueFrom: 
+                secretKeyRef:
+                  name: elasticsearch-es-elastic-user
+                  key: elastic
