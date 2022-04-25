@@ -1,0 +1,340 @@
+docker run --rm -v /Users/francismarasouza/params-file.json:/tmp/params-file.json elastic/rally race --target-hosts=35.241.132.100:9200 --pipeline=benchmark-only --client-op'ions="timeout:60,use_ssl:true,verify_certs:false,basic_auth_user:'elastic',basic_auth_password:'ASmhm77tv49493tYczP7O58h'"  --track-params=/tmp/params-file.json --track=http_logs
+    ____        ____
+   / __ \____ _/ / /_  __
+  / /_/ / __ `/ / / / / /
+ / _, _/ /_/ / / / /_/ /
+/_/ |_|\__,_/_/_/\__, /
+                /____/
+
+[INFO] Downloading track data (13.2 MB total size)                                [100.0%]
+[INFO] Decompressing track data from [/rally/.rally/benchmarks/data/http_logs/documents-181998.json.bz2] to [/rally/.rally/benchmarks/data/http_logs/documents-181998.json] (resulting size: [0.34] GB) ... [OK]
+[INFO] Preparing file offset table for [/rally/.rally/benchmarks/data/http_logs/documents-181998.json] ... [OK]
+[INFO] Downloading track data (47.3 MB total size)                                [100.0%]
+[INFO] Decompressing track data from [/rally/.rally/benchmarks/data/http_logs/documents-191998.json.bz2] to [/rally/.rally/benchmarks/data/http_logs/documents-191998.json] (resulting size: [1.21] GB) ... [OK]
+[INFO] Preparing file offset table for [/rally/.rally/benchmarks/data/http_logs/documents-191998.json] ... [OK]
+[INFO] Downloading track data (62.7 MB total size)                                [100.0%]
+[INFO] Decompressing track data from [/rally/.rally/benchmarks/data/http_logs/documents-201998.json.bz2] to [/rally/.rally/benchmarks/data/http_logs/documents-201998.json] (resulting size: [1.62] GB) ... [OK]
+[INFO] Preparing file offset table for [/rally/.rally/benchmarks/data/http_logs/documents-201998.json] ... [OK]
+[INFO] Downloading track data (84.3 MB total size)                                [100.0%]
+[INFO] Decompressing track data from [/rally/.rally/benchmarks/data/http_logs/documents-211998.json.bz2] to [/rally/.rally/benchmarks/data/http_logs/documents-211998.json] (resulting size: [2.20] GB) ... [OK]
+[INFO] Preparing file offset table for [/rally/.rally/benchmarks/data/http_logs/documents-211998.json] ... [OK]
+[INFO] Downloading track data (51.8 MB total size)                                [100.0%]
+[INFO] Decompressing track data from [/rally/.rally/benchmarks/data/http_logs/documents-221998.json.bz2] to [/rally/.rally/benchmarks/data/http_logs/documents-221998.json] (resulting size: [1.34] GB) ... [OK]
+[INFO] Preparing file offset table for [/rally/.rally/benchmarks/data/http_logs/documents-221998.json] ... [OK]
+[INFO] Downloading track data (58.2 MB total size)                                [100.0%]
+[INFO] Decompressing track data from [/rally/.rally/benchmarks/data/http_logs/documents-231998.json.bz2] to [/rally/.rally/benchmarks/data/http_logs/documents-231998.json] (resulting size: [1.49] GB) ... [OK]
+[INFO] Preparing file offset table for [/rally/.rally/benchmarks/data/http_logs/documents-231998.json] ... [OK]
+[INFO] Downloading track data (865.3 MB total size)                               [100.0%]
+[INFO] Decompressing track data from [/rally/.rally/benchmarks/data/http_logs/documents-241998.json.bz2] to [/rally/.rally/benchmarks/data/http_logs/documents-241998.json] (resulting size: [22.87] GB) ... [OK]
+[INFO] Preparing file offset table for [/rally/.rally/benchmarks/data/http_logs/documents-241998.json] ... [OK]
+Running delete-index                                                           [100% done]
+Running create-index                                                           [100% done]
+Running check-cluster-health                                                   [100% done]
+Running index-append                                                           [100% done]
+Running refresh-after-index                                                    [100% done]
+Running force-merge                                                            [100% done]
+Running refresh-after-force-merge                                              [100% done]
+Running wait-until-merges-finish                                               [100% done]
+Running default                                                                [100% done]
+Running term                                                                   [100% done]
+Running terms_enum                                                             [100% done]
+Running range                                                                  [100% done]
+Running 200s-in-range                                                          [100% done]
+Running 400s-in-range                                                          [100% done]
+Running hourly_agg                                                             [100% done]
+Running scroll                                                                 [100% done]
+Running desc_sort_timestamp                                                    [100% done]
+Running asc_sort_timestamp                                                     [100% done]
+Running desc_sort_with_after_timestamp                                         [100% done]
+Running asc_sort_with_after_timestamp                                          [100% done]
+Running force-merge-1-seg                                                      [100% done]
+Running refresh-after-force-merge-1-seg                                        [100% done]
+Running wait-until-merges-1-seg-finish                                         [100% done]
+Running desc-sort-timestamp-after-force-merge-1-seg                            [100% done]
+Running asc-sort-timestamp-after-force-merge-1-seg                             [100% done]
+Running desc-sort-with-after-timestamp-after-force-merge-1-seg                 [100% done]
+Running asc-sort-with-after-timestamp-after-force-merge-1-seg                  [100% done][INFO] Racing on track [http_logs], challenge [append-no-conflicts] and car ['external'] with version [8.0.0].
+
+
+------------------------------------------------------
+    _______             __   _____
+   / ____(_)___  ____ _/ /  / ___/_________  ________
+  / /_  / / __ \/ __ `/ /   \__ \/ ___/ __ \/ ___/ _ \
+ / __/ / / / / / /_/ / /   ___/ / /__/ /_/ / /  /  __/
+/_/   /_/_/ /_/\__,_/_/   /____/\___/\____/_/   \___/
+------------------------------------------------------
+
+|                                                         Metric |                                                   Task |       Value |    Unit |
+|---------------------------------------------------------------:|-------------------------------------------------------:|------------:|--------:|
+|                     Cumulative indexing time of primary shards |                                                        |     112.995 |     min |
+|             Min cumulative indexing time across primary shards |                                                        |           0 |     min |
+|          Median cumulative indexing time across primary shards |                                                        |     2.36255 |     min |
+|             Max cumulative indexing time across primary shards |                                                        |     43.2072 |     min |
+|            Cumulative indexing throttle time of primary shards |                                                        |           0 |     min |
+|    Min cumulative indexing throttle time across primary shards |                                                        |           0 |     min |
+| Median cumulative indexing throttle time across primary shards |                                                        |           0 |     min |
+|    Max cumulative indexing throttle time across primary shards |                                                        |           0 |     min |
+|                        Cumulative merge time of primary shards |                                                        |     84.1567 |     min |
+|                       Cumulative merge count of primary shards |                                                        |          79 |         |
+|                Min cumulative merge time across primary shards |                                                        |           0 |     min |
+|             Median cumulative merge time across primary shards |                                                        |      0.4769 |     min |
+|                Max cumulative merge time across primary shards |                                                        |     40.0849 |     min |
+|               Cumulative merge throttle time of primary shards |                                                        |     39.3228 |     min |
+|       Min cumulative merge throttle time across primary shards |                                                        |           0 |     min |
+|    Median cumulative merge throttle time across primary shards |                                                        |           0 |     min |
+|       Max cumulative merge throttle time across primary shards |                                                        |     20.9764 |     min |
+|                      Cumulative refresh time of primary shards |                                                        |     4.12308 |     min |
+|                     Cumulative refresh count of primary shards |                                                        |         471 |         |
+|              Min cumulative refresh time across primary shards |                                                        |           0 |     min |
+|           Median cumulative refresh time across primary shards |                                                        |    0.291683 |     min |
+|              Max cumulative refresh time across primary shards |                                                        |     0.51045 |     min |
+|                        Cumulative flush time of primary shards |                                                        |     3.23647 |     min |
+|                       Cumulative flush count of primary shards |                                                        |         114 |         |
+|                Min cumulative flush time across primary shards |                                                        |           0 |     min |
+|             Median cumulative flush time across primary shards |                                                        |   0.0386583 |     min |
+|                Max cumulative flush time across primary shards |                                                        |     1.36765 |     min |
+|                                        Total Young Gen GC time |                                                        |     210.725 |       s |
+|                                       Total Young Gen GC count |                                                        |       28599 |         |
+|                                          Total Old Gen GC time |                                                        |           0 |       s |
+|                                         Total Old Gen GC count |                                                        |           0 |         |
+|                                                     Store size |                                                        |     32.2509 |      GB |
+|                                                  Translog size |                                                        | 1.63913e-06 |      GB |
+|                                         Heap used for segments |                                                        |           0 |      MB |
+|                                       Heap used for doc values |                                                        |           0 |      MB |
+|                                            Heap used for terms |                                                        |           0 |      MB |
+|                                            Heap used for norms |                                                        |           0 |      MB |
+|                                           Heap used for points |                                                        |           0 |      MB |
+|                                    Heap used for stored fields |                                                        |           0 |      MB |
+|                                                  Segment count |                                                        |          14 |         |
+|                                                 Min Throughput |                                           index-append |     5022.11 |  docs/s |
+|                                                Mean Throughput |                                           index-append |     5745.53 |  docs/s |
+|                                              Median Throughput |                                           index-append |     5785.47 |  docs/s |
+|                                                 Max Throughput |                                           index-append |     5886.22 |  docs/s |
+|                                        50th percentile latency |                                           index-append |      6321.6 |      ms |
+|                                        90th percentile latency |                                           index-append |     8338.96 |      ms |
+|                                        99th percentile latency |                                           index-append |     10663.2 |      ms |
+|                                      99.9th percentile latency |                                           index-append |     12972.8 |      ms |
+|                                     99.99th percentile latency |                                           index-append |       15082 |      ms |
+|                                       100th percentile latency |                                           index-append |     18255.8 |      ms |
+|                                   50th percentile service time |                                           index-append |      6321.6 |      ms |
+|                                   90th percentile service time |                                           index-append |     8338.96 |      ms |
+|                                   99th percentile service time |                                           index-append |     10663.2 |      ms |
+|                                 99.9th percentile service time |                                           index-append |     12972.8 |      ms |
+|                                99.99th percentile service time |                                           index-append |       15082 |      ms |
+|                                  100th percentile service time |                                           index-append |     18255.8 |      ms |
+|                                                     error rate |                                           index-append |           0 |       % |
+|                                                 Min Throughput |                                                default |       19.77 |   ops/s |
+|                                                Mean Throughput |                                                default |       19.78 |   ops/s |
+|                                              Median Throughput |                                                default |       19.79 |   ops/s |
+|                                                 Max Throughput |                                                default |        19.8 |   ops/s |
+|                                        50th percentile latency |                                                default |     31.4644 |      ms |
+|                                        90th percentile latency |                                                default |     34.8839 |      ms |
+|                                        99th percentile latency |                                                default |     49.6657 |      ms |
+|                                       100th percentile latency |                                                default |     51.4247 |      ms |
+|                                   50th percentile service time |                                                default |      29.116 |      ms |
+|                                   90th percentile service time |                                                default |     32.1804 |      ms |
+|                                   99th percentile service time |                                                default |     47.6645 |      ms |
+|                                  100th percentile service time |                                                default |     48.7832 |      ms |
+|                                                     error rate |                                                default |           0 |       % |
+|                                                 Min Throughput |                                                   term |       25.74 |   ops/s |
+|                                                Mean Throughput |                                                   term |       25.86 |   ops/s |
+|                                              Median Throughput |                                                   term |       25.86 |   ops/s |
+|                                                 Max Throughput |                                                   term |       25.99 |   ops/s |
+|                                        50th percentile latency |                                                   term |     9989.16 |      ms |
+|                                        90th percentile latency |                                                   term |     10597.5 |      ms |
+|                                        99th percentile latency |                                                   term |     10727.2 |      ms |
+|                                       100th percentile latency |                                                   term |     10743.3 |      ms |
+|                                   50th percentile service time |                                                   term |     32.9842 |      ms |
+|                                   90th percentile service time |                                                   term |     37.2741 |      ms |
+|                                   99th percentile service time |                                                   term |     44.6788 |      ms |
+|                                  100th percentile service time |                                                   term |     45.2339 |      ms |
+|                                                     error rate |                                                   term |           0 |       % |
+|                                                 Min Throughput |                                             terms_enum |       34.19 |   ops/s |
+|                                                Mean Throughput |                                             terms_enum |       34.27 |   ops/s |
+|                                              Median Throughput |                                             terms_enum |       34.26 |   ops/s |
+|                                                 Max Throughput |                                             terms_enum |       34.36 |   ops/s |
+|                                        50th percentile latency |                                             terms_enum |     4839.38 |      ms |
+|                                        90th percentile latency |                                             terms_enum |     5161.49 |      ms |
+|                                        99th percentile latency |                                             terms_enum |     5235.14 |      ms |
+|                                       100th percentile latency |                                             terms_enum |     5242.37 |      ms |
+|                                   50th percentile service time |                                             terms_enum |     26.7622 |      ms |
+|                                   90th percentile service time |                                             terms_enum |     29.3772 |      ms |
+|                                   99th percentile service time |                                             terms_enum |     34.8921 |      ms |
+|                                  100th percentile service time |                                             terms_enum |     45.3427 |      ms |
+|                                                     error rate |                                             terms_enum |           0 |       % |
+|                                                 Min Throughput |                                                  range |       12.74 |   ops/s |
+|                                                Mean Throughput |                                                  range |       13.22 |   ops/s |
+|                                              Median Throughput |                                                  range |       13.25 |   ops/s |
+|                                                 Max Throughput |                                                  range |       13.69 |   ops/s |
+|                                        50th percentile latency |                                                  range |     4924.79 |      ms |
+|                                        90th percentile latency |                                                  range |     5938.11 |      ms |
+|                                        99th percentile latency |                                                  range |     6147.38 |      ms |
+|                                       100th percentile latency |                                                  range |     6178.39 |      ms |
+|                                   50th percentile service time |                                                  range |     63.0054 |      ms |
+|                                   90th percentile service time |                                                  range |     74.4714 |      ms |
+|                                   99th percentile service time |                                                  range |     91.8414 |      ms |
+|                                  100th percentile service time |                                                  range |     92.0729 |      ms |
+|                                                     error rate |                                                  range |           0 |       % |
+|                                                 Min Throughput |                                          200s-in-range |       23.02 |   ops/s |
+|                                                Mean Throughput |                                          200s-in-range |       23.08 |   ops/s |
+|                                              Median Throughput |                                          200s-in-range |        23.1 |   ops/s |
+|                                                 Max Throughput |                                          200s-in-range |       23.12 |   ops/s |
+|                                        50th percentile latency |                                          200s-in-range |     1679.01 |      ms |
+|                                        90th percentile latency |                                          200s-in-range |     1799.72 |      ms |
+|                                        99th percentile latency |                                          200s-in-range |     1826.35 |      ms |
+|                                       100th percentile latency |                                          200s-in-range |     1829.34 |      ms |
+|                                   50th percentile service time |                                          200s-in-range |      39.002 |      ms |
+|                                   90th percentile service time |                                          200s-in-range |      44.226 |      ms |
+|                                   99th percentile service time |                                          200s-in-range |     51.6792 |      ms |
+|                                  100th percentile service time |                                          200s-in-range |     103.723 |      ms |
+|                                                     error rate |                                          200s-in-range |           0 |       % |
+|                                                 Min Throughput |                                          400s-in-range |       31.68 |   ops/s |
+|                                                Mean Throughput |                                          400s-in-range |       31.71 |   ops/s |
+|                                              Median Throughput |                                          400s-in-range |       31.69 |   ops/s |
+|                                                 Max Throughput |                                          400s-in-range |       31.75 |   ops/s |
+|                                        50th percentile latency |                                          400s-in-range |     6259.91 |      ms |
+|                                        90th percentile latency |                                          400s-in-range |     6627.54 |      ms |
+|                                        99th percentile latency |                                          400s-in-range |     6726.76 |      ms |
+|                                       100th percentile latency |                                          400s-in-range |     6735.33 |      ms |
+|                                   50th percentile service time |                                          400s-in-range |     28.1924 |      ms |
+|                                   90th percentile service time |                                          400s-in-range |     33.5542 |      ms |
+|                                   99th percentile service time |                                          400s-in-range |     43.8898 |      ms |
+|                                  100th percentile service time |                                          400s-in-range |     45.2335 |      ms |
+|                                                     error rate |                                          400s-in-range |           0 |       % |
+|                                                 Min Throughput |                                             hourly_agg |        0.11 |   ops/s |
+|                                                Mean Throughput |                                             hourly_agg |        0.12 |   ops/s |
+|                                              Median Throughput |                                             hourly_agg |        0.12 |   ops/s |
+|                                                 Max Throughput |                                             hourly_agg |        0.13 |   ops/s |
+|                                        50th percentile latency |                                             hourly_agg |      530014 |      ms |
+|                                        90th percentile latency |                                             hourly_agg |      706132 |      ms |
+|                                        99th percentile latency |                                             hourly_agg |      744018 |      ms |
+|                                       100th percentile latency |                                             hourly_agg |      746992 |      ms |
+|                                   50th percentile service time |                                             hourly_agg |     7943.52 |      ms |
+|                                   90th percentile service time |                                             hourly_agg |       15115 |      ms |
+|                                   99th percentile service time |                                             hourly_agg |     15153.1 |      ms |
+|                                  100th percentile service time |                                             hourly_agg |       15157 |      ms |
+|                                                     error rate |                                             hourly_agg |           0 |       % |
+|                                                 Min Throughput |                                                 scroll |       18.34 | pages/s |
+|                                                Mean Throughput |                                                 scroll |       18.57 | pages/s |
+|                                              Median Throughput |                                                 scroll |        18.6 | pages/s |
+|                                                 Max Throughput |                                                 scroll |       18.69 | pages/s |
+|                                        50th percentile latency |                                                 scroll |     69361.7 |      ms |
+|                                        90th percentile latency |                                                 scroll |     95593.5 |      ms |
+|                                        99th percentile latency |                                                 scroll |      100879 |      ms |
+|                                       100th percentile latency |                                                 scroll |      101521 |      ms |
+|                                   50th percentile service time |                                                 scroll |     1307.24 |      ms |
+|                                   90th percentile service time |                                                 scroll |     1335.07 |      ms |
+|                                   99th percentile service time |                                                 scroll |     1864.85 |      ms |
+|                                  100th percentile service time |                                                 scroll |     1917.83 |      ms |
+|                                                     error rate |                                                 scroll |           0 |       % |
+|                                                 Min Throughput |                                    desc_sort_timestamp |        1.91 |   ops/s |
+|                                                Mean Throughput |                                    desc_sort_timestamp |        1.92 |   ops/s |
+|                                              Median Throughput |                                    desc_sort_timestamp |        1.93 |   ops/s |
+|                                                 Max Throughput |                                    desc_sort_timestamp |        1.93 |   ops/s |
+|                                        50th percentile latency |                                    desc_sort_timestamp |     4101.29 |      ms |
+|                                        90th percentile latency |                                    desc_sort_timestamp |     4388.41 |      ms |
+|                                        99th percentile latency |                                    desc_sort_timestamp |     4571.32 |      ms |
+|                                       100th percentile latency |                                    desc_sort_timestamp |     4593.85 |      ms |
+|                                   50th percentile service time |                                    desc_sort_timestamp |     505.112 |      ms |
+|                                   90th percentile service time |                                    desc_sort_timestamp |     538.217 |      ms |
+|                                   99th percentile service time |                                    desc_sort_timestamp |     557.567 |      ms |
+|                                  100th percentile service time |                                    desc_sort_timestamp |     587.247 |      ms |
+|                                                     error rate |                                    desc_sort_timestamp |           0 |       % |
+|                                                 Min Throughput |                                     asc_sort_timestamp |        1.22 |   ops/s |
+|                                                Mean Throughput |                                     asc_sort_timestamp |        1.26 |   ops/s |
+|                                              Median Throughput |                                     asc_sort_timestamp |        1.26 |   ops/s |
+|                                                 Max Throughput |                                     asc_sort_timestamp |         1.3 |   ops/s |
+|                                        50th percentile latency |                                     asc_sort_timestamp |      184410 |      ms |
+|                                        90th percentile latency |                                     asc_sort_timestamp |      223112 |      ms |
+|                                        99th percentile latency |                                     asc_sort_timestamp |      228571 |      ms |
+|                                       100th percentile latency |                                     asc_sort_timestamp |      229364 |      ms |
+|                                   50th percentile service time |                                     asc_sort_timestamp |     1308.45 |      ms |
+|                                   90th percentile service time |                                     asc_sort_timestamp |     1382.14 |      ms |
+|                                   99th percentile service time |                                     asc_sort_timestamp |     1496.87 |      ms |
+|                                  100th percentile service time |                                     asc_sort_timestamp |     1521.82 |      ms |
+|                                                     error rate |                                     asc_sort_timestamp |           0 |       % |
+|                                                 Min Throughput |                         desc_sort_with_after_timestamp |        0.25 |   ops/s |
+|                                                Mean Throughput |                         desc_sort_with_after_timestamp |        0.28 |   ops/s |
+|                                              Median Throughput |                         desc_sort_with_after_timestamp |        0.28 |   ops/s |
+|                                                 Max Throughput |                         desc_sort_with_after_timestamp |        0.31 |   ops/s |
+|                                        50th percentile latency |                         desc_sort_with_after_timestamp |      135609 |      ms |
+|                                        90th percentile latency |                         desc_sort_with_after_timestamp |      266174 |      ms |
+|                                        99th percentile latency |                         desc_sort_with_after_timestamp |      299483 |      ms |
+|                                       100th percentile latency |                         desc_sort_with_after_timestamp |      303116 |      ms |
+|                                   50th percentile service time |                         desc_sort_with_after_timestamp |     4481.54 |      ms |
+|                                   90th percentile service time |                         desc_sort_with_after_timestamp |     4724.49 |      ms |
+|                                   99th percentile service time |                         desc_sort_with_after_timestamp |     4834.33 |      ms |
+|                                  100th percentile service time |                         desc_sort_with_after_timestamp |     4854.41 |      ms |
+|                                                     error rate |                         desc_sort_with_after_timestamp |           0 |       % |
+|                                                 Min Throughput |                          asc_sort_with_after_timestamp |         0.5 |   ops/s |
+|                                                Mean Throughput |                          asc_sort_with_after_timestamp |         0.5 |   ops/s |
+|                                              Median Throughput |                          asc_sort_with_after_timestamp |         0.5 |   ops/s |
+|                                                 Max Throughput |                          asc_sort_with_after_timestamp |         0.5 |   ops/s |
+|                                        50th percentile latency |                          asc_sort_with_after_timestamp |     1755.61 |      ms |
+|                                        90th percentile latency |                          asc_sort_with_after_timestamp |     1842.59 |      ms |
+|                                        99th percentile latency |                          asc_sort_with_after_timestamp |      1971.4 |      ms |
+|                                       100th percentile latency |                          asc_sort_with_after_timestamp |     1988.98 |      ms |
+|                                   50th percentile service time |                          asc_sort_with_after_timestamp |     1754.29 |      ms |
+|                                   90th percentile service time |                          asc_sort_with_after_timestamp |     1839.67 |      ms |
+|                                   99th percentile service time |                          asc_sort_with_after_timestamp |     1968.26 |      ms |
+|                                  100th percentile service time |                          asc_sort_with_after_timestamp |     1986.26 |      ms |
+|                                                     error rate |                          asc_sort_with_after_timestamp |           0 |       % |
+|                                                 Min Throughput |            desc-sort-timestamp-after-force-merge-1-seg |           1 |   ops/s |
+|                                                Mean Throughput |            desc-sort-timestamp-after-force-merge-1-seg |           1 |   ops/s |
+|                                              Median Throughput |            desc-sort-timestamp-after-force-merge-1-seg |           1 |   ops/s |
+|                                                 Max Throughput |            desc-sort-timestamp-after-force-merge-1-seg |           1 |   ops/s |
+|                                        50th percentile latency |            desc-sort-timestamp-after-force-merge-1-seg |     738.678 |      ms |
+|                                        90th percentile latency |            desc-sort-timestamp-after-force-merge-1-seg |     888.346 |      ms |
+|                                        99th percentile latency |            desc-sort-timestamp-after-force-merge-1-seg |     1332.74 |      ms |
+|                                       100th percentile latency |            desc-sort-timestamp-after-force-merge-1-seg |     1423.44 |      ms |
+|                                   50th percentile service time |            desc-sort-timestamp-after-force-merge-1-seg |     733.807 |      ms |
+|                                   90th percentile service time |            desc-sort-timestamp-after-force-merge-1-seg |     852.378 |      ms |
+|                                   99th percentile service time |            desc-sort-timestamp-after-force-merge-1-seg |     1178.56 |      ms |
+|                                  100th percentile service time |            desc-sort-timestamp-after-force-merge-1-seg |     1329.05 |      ms |
+|                                                     error rate |            desc-sort-timestamp-after-force-merge-1-seg |           0 |       % |
+|                                                 Min Throughput |             asc-sort-timestamp-after-force-merge-1-seg |        2.93 |   ops/s |
+|                                                Mean Throughput |             asc-sort-timestamp-after-force-merge-1-seg |        2.93 |   ops/s |
+|                                              Median Throughput |             asc-sort-timestamp-after-force-merge-1-seg |        2.93 |   ops/s |
+|                                                 Max Throughput |             asc-sort-timestamp-after-force-merge-1-seg |        2.93 |   ops/s |
+|                                        50th percentile latency |             asc-sort-timestamp-after-force-merge-1-seg |     80431.4 |      ms |
+|                                        90th percentile latency |             asc-sort-timestamp-after-force-merge-1-seg |     92992.3 |      ms |
+|                                        99th percentile latency |             asc-sort-timestamp-after-force-merge-1-seg |     95852.5 |      ms |
+|                                       100th percentile latency |             asc-sort-timestamp-after-force-merge-1-seg |     96181.6 |      ms |
+|                                   50th percentile service time |             asc-sort-timestamp-after-force-merge-1-seg |     350.456 |      ms |
+|                                   90th percentile service time |             asc-sort-timestamp-after-force-merge-1-seg |     380.987 |      ms |
+|                                   99th percentile service time |             asc-sort-timestamp-after-force-merge-1-seg |     419.315 |      ms |
+|                                  100th percentile service time |             asc-sort-timestamp-after-force-merge-1-seg |     426.812 |      ms |
+|                                                     error rate |             asc-sort-timestamp-after-force-merge-1-seg |           0 |       % |
+|                                                 Min Throughput | desc-sort-with-after-timestamp-after-force-merge-1-seg |        0.91 |   ops/s |
+|                                                Mean Throughput | desc-sort-with-after-timestamp-after-force-merge-1-seg |        0.94 |   ops/s |
+|                                              Median Throughput | desc-sort-with-after-timestamp-after-force-merge-1-seg |        0.94 |   ops/s |
+|                                                 Max Throughput | desc-sort-with-after-timestamp-after-force-merge-1-seg |        0.98 |   ops/s |
+|                                        50th percentile latency | desc-sort-with-after-timestamp-after-force-merge-1-seg |     4777.61 |      ms |
+|                                        90th percentile latency | desc-sort-with-after-timestamp-after-force-merge-1-seg |     10253.3 |      ms |
+|                                        99th percentile latency | desc-sort-with-after-timestamp-after-force-merge-1-seg |     11448.3 |      ms |
+|                                       100th percentile latency | desc-sort-with-after-timestamp-after-force-merge-1-seg |     11644.3 |      ms |
+|                                   50th percentile service time | desc-sort-with-after-timestamp-after-force-merge-1-seg |     1102.96 |      ms |
+|                                   90th percentile service time | desc-sort-with-after-timestamp-after-force-merge-1-seg |     1221.24 |      ms |
+|                                   99th percentile service time | desc-sort-with-after-timestamp-after-force-merge-1-seg |     1319.32 |      ms |
+|                                  100th percentile service time | desc-sort-with-after-timestamp-after-force-merge-1-seg |     1337.36 |      ms |
+|                                                     error rate | desc-sort-with-after-timestamp-after-force-merge-1-seg |           0 |       % |
+|                                                 Min Throughput |  asc-sort-with-after-timestamp-after-force-merge-1-seg |        0.45 |   ops/s |
+|                                                Mean Throughput |  asc-sort-with-after-timestamp-after-force-merge-1-seg |        0.48 |   ops/s |
+|                                              Median Throughput |  asc-sort-with-after-timestamp-after-force-merge-1-seg |        0.49 |   ops/s |
+|                                                 Max Throughput |  asc-sort-with-after-timestamp-after-force-merge-1-seg |        0.49 |   ops/s |
+|                                        50th percentile latency |  asc-sort-with-after-timestamp-after-force-merge-1-seg |     1811.61 |      ms |
+|                                        90th percentile latency |  asc-sort-with-after-timestamp-after-force-merge-1-seg |     4705.33 |      ms |
+|                                        99th percentile latency |  asc-sort-with-after-timestamp-after-force-merge-1-seg |     5752.68 |      ms |
+|                                       100th percentile latency |  asc-sort-with-after-timestamp-after-force-merge-1-seg |      5816.1 |      ms |
+|                                   50th percentile service time |  asc-sort-with-after-timestamp-after-force-merge-1-seg |     1798.57 |      ms |
+|                                   90th percentile service time |  asc-sort-with-after-timestamp-after-force-merge-1-seg |     2192.82 |      ms |
+|                                   99th percentile service time |  asc-sort-with-after-timestamp-after-force-merge-1-seg |     2268.68 |      ms |
+|                                  100th percentile service time |  asc-sort-with-after-timestamp-after-force-merge-1-seg |     2363.09 |      ms |
+|                                                     error rate |  asc-sort-with-after-timestamp-after-force-merge-1-seg |           0 |       % |
+
+
+[INFO] Race id is [1ebbe3c3-2050-4b02-8c7e-fef886893a5d]
+
+-----------------------------------
+[INFO] SUCCESS (took 48040 seconds)
+-----------------------------------
