@@ -37,11 +37,6 @@ metadata:
       }
 spec:
   version: 8.1.3
-  auth:
-    roles:
-    - secretName: saml-role
-    fileRealm:
-    - secretName: role-mapping
   monitoring:
     metrics:
       elasticsearchRefs:
