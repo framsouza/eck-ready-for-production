@@ -2,46 +2,46 @@
 
 This articles will guide you on how to spin up an ECK environment ready for production together with,
 
-- **dedicated stack monitoring**,
-- **fleet-server & elastic-agent** with Kubernetes integratoin,
-- **elasticsearch autoscaling**,
-- **nodeAffinity & nodeSelector**,
-- **SAML with auth0**,
-- **hot,warm,cold,frozen architecture**,
-- **heartbeat monitor SSL certificate expiration**,
+- dedicated stack monitoring,
+- fleet-server & elastic-agent (with kubernetes integration),
+- elasticsearch autoscaling,
+- nodeAffinity & nodeSelector,
+- SAML with auth0,
+- hot, warm, cold, frozen architecture,
+- heartbeat monitor SSL certificate expiration,
 - [external-dns](https://github.com/kubernetes-sigs/external-dns) (with CloudFlare integration),
 - [cert-manager](https://github.com/cert-manager/cert-manager) -with let's encrypt integration),
 - [ingress controller](https://kubernetes.github.io/ingress-nginx/) (using Cloudflare to register the endpoints)
-- _Optional_: [esrally](https://esrally.readthedocs.io/en/stable/) to validate autoscaling and run benchmark against es cluster 
+- _Optional_: [esrally](https://esrally.readthedocs.io/en/stable/) to validate autoscaling and run benchmark against es cluster
 
 _Remember you must have `basic` or `enterprise` license to run ECK._
 
 ## Demo
 
 ### cert-manager
-Cert-manager adds certificates and  certificate issuers as resource types in Kubernetes, and simplifies the process of obtaining, renewing and using those certificates. It's very command Kubernetes administrator use cert-manager to handle certificate, and on this exemple we are going to use cert-manager with let's encrypt to access Kibana. Remember that, TLS certificates for the Elasticsearch transport layer that are used for internal communications between Elasticsearch nodes are managed by ECK and **cannot** be changed.
+cert-manager adds certificates and  certificate issuers as resource types in Kubernetes, and simplifies the process of obtaining, renewing and using those certificates. It's very command Kubernetes administrator use cert-manager to handle certificate, and on this exemple we are going to use cert-manager with let's encrypt to access Kibana. Remember that, TLS certificates for the Elasticsearch transport layer that are used for internal communications between Elasticsearch nodes are managed by ECK and **cannot** be changed.
 
 ### ingress
-Ingress controller is specialized load balancer for Kubernetes, qhich accepts traffic from outside the Kubernetes cluster and balances it to pods. 
+Ingress controller is specialized load balancer for Kubernetes, qhich accepts traffic from outside the Kubernetes cluster and balances it to pods.
 
 ### external-dns
 It's a addon that configures public DNS servers about exposed Kubernetes services, on this examples we are integrating external-dns with Cloudflare. For each Ingress/Service resource you us, a DNS entry will created on Cloudflare with the respective IP address, on external-dns logs you should be able to see the following
 
 ```
-time="2022-03-02T13:36:52Z" level=info msg="Using inCluster-config based on serviceaccount-token"
-time="2022-03-02T13:36:52Z" level=info msg="Created Kubernetes client https://10.76.0.1:443"
-time="2022-03-02T13:41:04Z" level=info msg="Changing record." action=CREATE record=kibana.framsouza.co ttl=1 type=A zone=4cd4c7c1cb8f7bf3a7482749654ae6fb
-time="2022-03-02T13:41:05Z" level=info msg="Changing record." action=CREATE record=kibana.framsouza.co ttl=1 type=TXT zone=4cd4c7c1cb8f7bf3a7482749654ae6fb
+level=info msg="Using inCluster-config based on serviceaccount-token"
+level=info msg="Created Kubernetes client https://10.76.0.1:443"
+level=info msg="Changing record." action=CREATE record=kibana.framsouza.co ttl=1 type=A zone=4cd4c7c1cb8f7bf3a7482749654ae6fb
+level=info msg="Changing record." action=CREATE record=kibana.framsouza.co ttl=1 type=TXT zone=4cd4c7c1cb8f7bf3a7482749654ae6fb
 ```
 
 ### How-to setup
 
 _Make sure to respect the commands execution order_
 
-1. Create GKE cluster with Kubernetes `type` hot, warm, cold,  frozen for each dedicated node pool, make sure you will have enough resouce to run the pods in the nodes. [Here](https://github.com/framsouza/terraform), there's a terraform example that will spin up it for you, 
-2. Create a cluster role mapping that gives you permission to install ECK operator 
+1. Create GKE cluster with Kubernetes `type` hot, warm, cold,  frozen for each dedicated node pool, make sure you will have enough resouce to run the pods in the nodes. [Here](https://github.com/framsouza/terraform), there's a terraform example that will spin up it for you,
+2. Create a cluster role mapping that gives you permission to install ECK operator
 	- `kubectl create clusterrolebinding cluster-admin-binding --cluster-role=cluster-admin --user=<USERNAME>`
-3. Install ECK operator 
+3. Install ECK operator
 	- `helm repo add elastic https://helm.elastic.co && helm repo update && helm install elastic-operator elastic/eck-operator -n elastic-system --create-namespace`
 4. Create dedicated storage class by applying files **storageclass-hot.yaml** and **storageclass-warm.yaml**
 5. Download your license and apply it via secret (or apply the [license.yaml](https://github.com/framsouza/eck-ready-for-production/blob/main/license.yaml))
