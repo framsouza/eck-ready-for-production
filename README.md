@@ -1,6 +1,6 @@
 # ECK in production environment
 
-This articles will guide you on how to spin up an ECK environment ready for production together with,
+This articles will guide you on how to spin up an ECK environment ready for production which contains,
 
 - dedicated stack monitoring,
 - fleet-server & elastic-agent (with kubernetes integration),
@@ -31,7 +31,7 @@ It's a addon that configures public DNS servers about exposed Kubernetes service
 level=info msg="Using inCluster-config based on serviceaccount-token"
 level=info msg="Created Kubernetes client https://10.76.0.1:443"
 level=info msg="Changing record." action=CREATE record=kibana.framsouza.co ttl=1 type=A zone=4cd4c7c1cb8f7bf3a7482749654ae6fb
-level=info msg="Changing record." action=CREATE record=kibana.framsouza.co ttl=1 type=TXT zone=4cd4c7c1cb8f7bf3a7482749654ae6fb
+level=info msg="Changing record." action=CREATE record=monitoring.framsouza.co ttl=1 type=TXT zone=4cd4c7c1cb8f7bf3a7482749654ae6fb
 ```
 
 ### How-to setup
@@ -52,14 +52,21 @@ _Make sure to respect the commands execution order_
 9. Create fleet resource, [fleet.yaml](https://github.com/framsouza/eck-ready-for-production/blob/main/fleet.yaml)
 10. Create heartbeat, [heartbeat.yaml](https://github.com/framsouza/eck-ready-for-production/blob/main/heartbeat.yaml)
 11. Install external-dns
-	- `CF_API_KEY=<YOURAPI> && CF_API_EMAIL=<YOUREMAIL> && helm upgrade --install external-dns bitnami/external-dns --set provider=cloudflare --set CF_API_KEY=$CF_API_KEY --set CF_API_EMAIL=$CF_API_EMAI`
+	- `kubectl apply -f external-dns.yml`
 12. Install cert-manager
 	- `kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.7.1/cert-manager.yaml`
-13. Create cluster issuer apply [clusterissuer.yaml](https://github.com/framsouza/eck-ready-for-production/blob/main/clusterissuer.yaml)
-14. Create let's encrypt certificate [certificate.yaml](https://github.com/framsouza/eck-ready-for-production/blob/main/certificate.yaml)
-15. Install ingress-nginx ,
+13. Install ingress-nginx ,
 	- `helm upgrade --install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace ingress-nginx --create-namespace`
 16. Create ingress resource, [ingress.yaml](https://github.com/framsouza/eck-ready-for-production/blob/main/ingress.yaml)
+14. Create cluster issuer apply [clusterissuer.yaml](https://github.com/framsouza/eck-ready-for-production/blob/main/clusterissuer.yaml)
+15. Create let's encrypt certificate [certificate.yaml](https://github.com/framsouza/eck-ready-for-production/blob/main/certificate.yaml)
+
+### Accessing
+
+For this example, I am using a domain call **framsouza.co** and as I am using external-dns, the DNS entry will be automatically added to Cloudflare, **https://kibana.framsouza.co** and **https://monitoring.framsouza.co**.
+You can check the connection is safe and we are using a valid certificate by let's encrypt.
+
+If you want to login using SAML, make sure to adjust the `saml` session on `elasticsearch.yml` according to your environment.
 
 
 ### Autoscaling validation
@@ -80,3 +87,6 @@ docker run -v /tmp/params-file.json:/tmp/params-file.json elastic/rally race --t
 ```
 
 Have a look at [esrally-result.txt](https://github.com/framsouza/eck-ready-for-production/blob/main/esrally-result.txt).
+
+
+Seya.

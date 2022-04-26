@@ -56,4 +56,4 @@ spec:
         - --provider=cloudflare
         env:
         - name: CF_API_TOKEN
-          value: XCgG0QGaBP9WcisxY7I70GF4U0UQTG7hobQ6cr4d
+          value: xCgsEtpkGymPIPuAWcGkXryoWcTlmxmNp7UsYD7l
